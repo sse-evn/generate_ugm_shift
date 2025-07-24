@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Employee Shift Scheduler</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      min-height: 100vh;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .header {
+      background: linear-gradient(90deg, #6b48ff, #884dff);
+      color: white;
+      padding: 20px;
+      text-align: center;
+      border-radius: 15px 15px 0 0;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+    .header select {
+      padding: 8px;
+      border: none;
+      border-radius: 5px;
+      background-color: rgba(255, 255, 255, 0.2);
+      color: white;
+    }
+    .nav-tabs {
+      display: flex;
+      background: #6b48ff;
+      border-radius: 10px;
+      overflow: hidden;
+      margin: 10px 0;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+    .nav-tabs button {
+      flex: 1;
+      padding: 15px;
+      background: none;
+      border: none;
+      color: white;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background 0.3s;
+    }
+    .nav-tabs button:hover {
+      background: #5a3de6;
+    }
+    .nav-tabs button.active {
+      background: #5a3de6;
+      font-weight: bold;
+    }
+    .tab-content {
+      display: none;
+      padding: 20px;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
+    }
+    .tab-content.active {
+      display: block;
+    }
+    .input-section {
+      margin: 20px 0;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .input-section input, .input-section select {
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      width: 200px;
+      font-size: 14px;
+    }
+    .input-section button {
+      padding: 10px 20px;
+      background: linear-gradient(90deg, #6b48ff, #884dff);
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    .input-section button:hover {
+      transform: scale(1.05);
+    }
+    .employee-list ul {
+      list-style: none;
+      padding: 0;
+    }
+    .employee-list li {
+      display: flex;
+      justify-content: space-between;
+      padding: 15px;
+      background: #f9f9f9;
+      margin: 10px 0;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    }
+    .employee-list button {
+      background: #ff4444;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .schedule-table {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .day-column {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .day, .night {
+      background: white;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+    .day h4, .night h4 {
+      margin: 0 0 10px 0;
+      color: #6b48ff;
+      font-size: 16px;
+    }
+    .schedule-item {
+      padding: 10px;
+      text-align: center;
+      background: #e0e0e0;
+      border-radius: 5px;
+      transition: background 0.3s;
+    }
+    .schedule-item:hover {
+      background: #d0d0d0;
+    }
+    @media (max-width: 600px) {
+      .input-section input, .input-section select {
+        width: 100%;
+      }
+      .nav-tabs {
+        flex-direction: column;
+      }
+      .nav-tabs button {
+        width: 100%;
+        text-align: left;
+        padding: 15px;
+      }
+      .schedule-table {
+        flex-direction: column;
+      }
+      .day-column {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h2>Таблица учёта посещений</h2>
+      <select id="month">
+        <option value="July 2025">Июль 2025</option>
+      </select>
+    </div>
+    <div class="nav-tabs">
+      <button class="tab-button active" onclick="openTab('schedule')">График</button>
+      <button class="tab-button" onclick="openTab('employees')">Управление сотрудниками</button>
+      <button class="tab-button" onclick="openTab('scouts')">Данные скаутов</button>
+    </div>
+
+    <div id="schedule" class="tab-content active">
+      <div class="schedule-table" id="scheduleTable"></div>
+    </div>
+
+    <div id="employees" class="tab-content">
+      <div class="input-section">
+        <input type="text" id="employeeName" placeholder="Имя сотрудника">
+        <input type="text" id="scoutData" placeholder="Данные скаута">
+        <select id="shiftType">
+          <option value="day">День</option>
+          <option value="night">Ночь</option>
+        </select>
+        <button onclick="addOrUpdateEmployee()">Добавить/Обновить</button>
+      </div>
+      <div class="employee-list">
+        <h3>Список сотрудников</h3>
+        <ul id="employeeList"></ul>
+      </div>
+    </div>
+
+    <div id="scouts" class="tab-content">
+      <h3>Данные скаутов</h3>
+      <ul id="scoutList"></ul>
+    </div>
+  </div>
+
+  <script>
+    let employees = [];
+    const days = Array(31).fill().map((_, i) => i + 1);
+    const maxDayShifts = 22;
+    const maxNightShifts = 22;
+
+    function openTab(tabName) {
+      document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.remove('active');
+      });
+      document.querySelectorAll('.tab-button').forEach(button => {
+        button.classList.remove('active');
+      });
+      document.getElementById(tabName).classList.add('active');
+      document.querySelector(`.tab-button[onclick="openTab('${tabName}')"]`).classList.add('active');
+      if (tabName === 'schedule') updateSchedule();
+      if (tabName === 'employees') updateEmployeeList();
+      if (tabName === 'scouts') updateScoutList();
+    }
+
+    function addOrUpdateEmployee() {
+      const name = document.getElementById('employeeName').value;
+      const scoutData = document.getElementById('scoutData').value;
+      const shift = document.getElementById('shiftType').value;
+      if (name && employees.length < 60) {
+        const existingIndex = employees.findIndex(e => e.name === name);
+        if (existingIndex > -1) {
+          employees[existingIndex] = { name, scoutData, shift };
+        } else {
+          employees.push({ name, scoutData, shift });
+        }
+        updateDisplay();
+        document.getElementById('employeeName').value = '';
+        document.getElementById('scoutData').value = '';
+      }
+    }
+
+    function removeEmployee(name) {
+      employees = employees.filter(e => e.name !== name);
+      updateDisplay();
+    }
+
+    function updateDisplay() {
+      updateEmployeeList();
+      updateSchedule();
+      updateScoutList();
+    }
+
+    function updateEmployeeList() {
+      const employeeList = document.getElementById('employeeList');
+      employeeList.innerHTML = '';
+      employees.forEach(e => {
+        const li = document.createElement('li');
+        li.innerHTML = `${e.name} (Скаут: ${e.scoutData || 'Нет данных'}) - ${e.shift} <button onclick="removeEmployee('${e.name}')">Удалить</button>`;
+        employeeList.appendChild(li);
+      });
+    }
+
+    function updateSchedule() {
+      const scheduleTable = document.getElementById('scheduleTable');
+      scheduleTable.innerHTML = '';
+
+      const dayEmployees = employees.filter(e => e.shift === 'day').slice(0, maxDayShifts);
+      const nightEmployees = employees.filter(e => e.shift === 'night').slice(0, maxNightShifts);
+
+      days.forEach(day => {
+        const column = document.createElement('div');
+        column.className = 'day-column';
+
+        const dayHeader = document.createElement('h4');
+        dayHeader.textContent = `День ${day}`;
+        column.appendChild(dayHeader);
+
+        const dayItem = document.createElement('div');
+        dayItem.className = 'schedule-item';
+        dayItem.textContent = dayEmployees.length < day ? '' : dayEmployees[day - 1]?.name || '';
+        column.appendChild(dayItem);
+
+        const nightHeader = document.createElement('h4');
+        nightHeader.textContent = `Ночь ${day}`;
+        column.appendChild(nightHeader);
+
+        const nightItem = document.createElement('div');
+        nightItem.className = 'schedule-item';
+        nightItem.textContent = nightEmployees.length < day ? '' : nightEmployees[day - 1]?.name || '';
+        column.appendChild(nightItem);
+
+        scheduleTable.appendChild(column);
+      });
+    }
+
+    function updateScoutList() {
+      const scoutList = document.getElementById('scoutList');
+      scoutList.innerHTML = '';
+      const uniqueScouts = [...new Set(employees.map(e => e.scoutData).filter(data => data))];
+      uniqueScouts.forEach(data => {
+        const li = document.createElement('li');
+        li.textContent = data;
+        scoutList.appendChild(li);
+      });
+    }
+
+    // Initial display
+    updateDisplay();
+    openTab('schedule');
+  </script>
+</body>
+</html>
